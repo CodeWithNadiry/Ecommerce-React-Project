@@ -28,7 +28,6 @@ const ProductForm = () => {
 
   const [error, setError] = useState(null);
 
-  // ✅ Reset Form
   const resetForm = () => {
     setUserInputs({
       name: "",
@@ -44,7 +43,6 @@ const ProductForm = () => {
     }
   };
 
-  // ✅ Auto Fill When Editing
   useEffect(() => {
     if (isEditing && editingProduct) {
       setUserInputs({
@@ -62,11 +60,9 @@ const ProductForm = () => {
     }
   }, [isEditing, editingProduct]);
 
-  // ✅ Handle Input Change (Base64 Method)
   const handleChange = (e) => {
     const { name, value, files, type } = e.target;
 
-    // 🔥 File Input Handling (Base64)
     if (type === "file" && files && files.length > 0) {
       const file = files[0];
 
@@ -75,12 +71,12 @@ const ProductForm = () => {
       reader.onloadend = () => {
         setUserInputs((prev) => ({
           ...prev,
-          image: reader.result, // ✅ Base64 string
+          image: reader.result, 
           file: file,
         }));
       };
 
-      reader.readAsDataURL(file); // 🔥 Converts image to Base64
+      reader.readAsDataURL(file); 
     } else {
       setUserInputs((prev) => ({
         ...prev,
@@ -89,7 +85,6 @@ const ProductForm = () => {
     }
   };
 
-  // ✅ Handle Submit
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -113,7 +108,7 @@ const ProductForm = () => {
     const productData = {
       name: name.trim(),
       price,
-      image, // ✅ Permanent Base64 image
+      image,
     };
 
     if (isEditing && editingProduct) {

@@ -23,7 +23,6 @@ const Cart = ({ items: propCartItems, heading }) => {
 
     const today = new Date().toLocaleString();
 
-    // Combine all cart items into a single order
     const productDetails = items.map(item => ({
       id: item.id,
       name: item.name,
@@ -32,15 +31,15 @@ const Cart = ({ items: propCartItems, heading }) => {
     }));
 
     addOrder({
-      user: { id: user.id, name: user.name }, // keep user as object
-      product: productDetails, // all products in one order
+      user: { id: user.id, name: user.name },
+      product: productDetails,
       date: today,
       status: "pending",
     });
 
-    clearCart(); // Clear cart after ordering
+    clearCart(); 
     alert("Order placed successfully!");
-    navigate("/user/orders"); // optional: go to user orders page
+    navigate("/user/orders"); 
   };
 
   return (
