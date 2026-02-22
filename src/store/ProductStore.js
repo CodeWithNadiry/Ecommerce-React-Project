@@ -1,36 +1,53 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-const useProductStore = create((set) => ({
-  products: JSON.parse(localStorage.getItem("products") || "[]"),
+const useProductStore = create(
+  persist(
+    (set, get) => ({
+      products: [],
 
-  editingProduct: null,
+      addProduct: ({ name, price, image }) => {
+        const { products } = get();
+        const newProduct = {
+          id: Date.now(),
+          name,
+          price,
+          image,
+        };
 
-  setEditingProduct: (product) => set({ editingProduct: product }),
+        set({ products: [...products, newProduct] });
+      },
 
-  clearEditingProduct: () => set({ editingProduct: null }),
+      updateProduct: (id, updatedData) => {
+        const { products } = get();
+        const updatedProducts = products.map((p) =>
+          p.id === id ? { ...p, ...updatedData } : p
+        );
 
-  addProduct: ({ name, price, image }) =>
-  set((state) => {
-    const newProduct = { id: Date.now(), name, price, image };
-    const updatedProducts = [...state.products, newProduct];
-    localStorage.setItem("products", JSON.stringify(updatedProducts));
-    return { products: updatedProducts };
-  }),
-  updateProduct: (id, updatedData) =>
-    set((state) => {
-      const updatedProducts = state.products.map((p) =>
-        p.id === id ? { ...p, ...updatedData } : p,
-      );
-      localStorage.setItem("products", JSON.stringify(updatedProducts));
-      return { products: updatedProducts };
+        set({ products: updatedProducts });
+      },
+
+      deleteProduct: (id) => {
+        const { products } = get();
+        const updatedProducts = products.filter((p) => p.id !== id);
+
+        set({ products: updatedProducts });
+      },
     }),
-
-  deleteProduct: (id) =>
-    set((state) => {
-      const updatedProducts = state.products.filter((p) => p.id !== id);
-      localStorage.setItem("products", JSON.stringify(updatedProducts));
-      return { products: updatedProducts };
-    }),
-}));
+    {
+      name: "products-storage",
+      partialize: state => ({
+        products: state.products // did it because before editingProduct also existed
+      })
+    }
+  )
+);
 
 export default useProductStore;
+
+// ⚠️ But Should editingProduct Be Persisted?
+// Honestly ❌ No.
+// Because:
+// If user refreshes page →
+// You don’t want edit mode to stay active.
+// You can persist only products, not editingProduct.

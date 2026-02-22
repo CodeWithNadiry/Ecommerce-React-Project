@@ -12,7 +12,7 @@ const ProductCard = ({ ...product }) => {
   const { openModal } = useModalStore();
   const { user } = useAuthStore();
   const { addItem } = useCartStore();
-  const { setEditingProduct, deleteProduct } = useProductStore();
+  const {  deleteProduct } = useProductStore();
 
   function handleDeleteProduct() {
     const confirmed = window.confirm(
@@ -44,8 +44,7 @@ const ProductCard = ({ ...product }) => {
               variant="primary"
               className="flex-1"
               onClick={() => {
-                setEditingProduct(product);
-                openModal("edit-product");
+                openModal("edit-product", product);
               }}
             >
               Edit

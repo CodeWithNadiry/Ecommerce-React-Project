@@ -1,53 +1,60 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-const useAuthStore = create((set) => ({
+const useAuthStore = create(
+  persist(
+    (set, get) => ({
+      user: null,
+      isLoggedIn: false,
+      users: [],
 
-  user: JSON.parse(localStorage.getItem("loggedInUser")) || null,
-  isLoggedIn: localStorage.getItem("isLoggedIn") === "true",
-  users: JSON.parse(localStorage.getItem("users") || "[]"),
+      signup: ({ name, email, password }) => {
+        const { users } = get();
 
-  signup: ({ name, email, password }) => {
-    set((state) => {
-      if (state.users.some((u) => u.email === email)) {
-        alert("Email already exists");
-        return {};
-      }
+        if (users.some((u) => u.email === email)) {
+          alert("Email already exists");
+          return false;
+        }
 
-      const role = email.includes("admin") ? "admin" : "user";
-      const newUser = { id: Date.now().toString(), name, email, password, role };
+        const role = email.includes("admin") ? "admin" : "user";
+        const newUser = {
+          id: Date.now().toString(),
+          name,
+          email,
+          password,
+          role,
+        };
 
-      const updatedUsers = [...state.users, newUser];
-      localStorage.setItem("users", JSON.stringify(updatedUsers));
+        set({ users: [...users, newUser] });
 
-      return { users: updatedUsers };
-    });
+        return true;
+      },
 
-    return true;
-  },
+      login: ({ email, password }) => {
+        const { users } = get();
 
-  login: ({ email, password }) => {
-    const foundUser = JSON.parse(localStorage.getItem("users") || "[]").find(
-      (u) => u.email === email && u.password === password
-    );
+        const foundUser = users.find(
+          (u) => u.email === email && u.password === password
+        );
 
-    if (!foundUser) {
-      alert("Email or password incorrect");
-      return false;
+        if (!foundUser) {
+          alert("Email or password incorrect");
+          return false;
+        }
+
+        set({ user: foundUser, isLoggedIn: true });
+
+        return foundUser.role;
+      },
+
+      logout: () => {
+        set({ user: null, isLoggedIn: false });
+      },
+    }),
+    {
+      name: "auth-storage",
     }
-
-    set({ user: foundUser, isLoggedIn: true });
-
-    localStorage.setItem("loggedInUser", JSON.stringify(foundUser));
-    localStorage.setItem("isLoggedIn", "true");
-
-    return foundUser.role;
-  },
-
-  logout: () => {
-    set({ user: null, isLoggedIn: false });
-    localStorage.removeItem("loggedInUser");
-    localStorage.removeItem("isLoggedIn");
-  },
-}));
+  )
+);
 
 export default useAuthStore;

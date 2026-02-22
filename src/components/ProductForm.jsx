@@ -7,16 +7,14 @@ import Input from "./Input";
 import Button from "./ui/Button";
 
 const ProductForm = () => {
-  const { modalType, closeModal } = useModalStore();
+  const { modalType, modalData, closeModal } = useModalStore();
   const {
     addProduct,
     updateProduct,
-    editingProduct,
-    clearEditingProduct,
   } = useProductStore();
 
   const isEditing = modalType === "edit-product";
-
+  const editingProduct = modalData;
   const fileInputRef = useRef(null);
 
   const [userInputs, setUserInputs] = useState({
@@ -113,7 +111,6 @@ const ProductForm = () => {
 
     if (isEditing && editingProduct) {
       updateProduct(editingProduct.id, productData);
-      clearEditingProduct();
     } else {
       addProduct(productData);
     }
